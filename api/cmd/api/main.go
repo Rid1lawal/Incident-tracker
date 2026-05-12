@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/Reazy-ai/incident-tracker/internal/database"
+	"github.com/Reazy-ai/incident-tracker/internal/handlers"
+	"github.com/Reazy-ai/incident-tracker/internal/repositories"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -26,8 +28,14 @@ func main() {
 	}
 
 	defer db.Close()
+	incidentRepo := repositories.NewIncidentRepository(db)
+
+	incidentHandler := handlers.NewIncidentHandler(incidentRepo)
 
 	router := gin.Default()
+
+	router.POST("/incidents", incidentHandler.CreateIncident)
+	router.GET("/incidents", incidentHandler.GetIncidents)
 
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
