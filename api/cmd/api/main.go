@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/Reazy-ai/incident-tracker/internal/database"
@@ -11,6 +13,7 @@ import (
 	"github.com/Reazy-ai/incident-tracker/internal/repositories"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
@@ -61,5 +64,51 @@ func main() {
 		})
 	})
 
-	router.Run(":" + port)
+	server := &http.Server{
+		Addr:    ":" + port,
+		Handler: router,
+	}
+
+	go func() {
+		log.Info().
+			Str("port", port).
+			Msg("starting API server")
+
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal().
+				Err(err).
+				Msg("failed to start server")
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+
+	signal.Notify(
+		quit,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+	)
+
+	<-quit
+
+	log.Info().Msg("shutdown signal received")
+
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		10*time.Second,
+	)
+
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+
+		log.Error().
+			Err(err).
+			Msg("graceful shutdown failed")
+	}
+
+	db.Close()
+
+	log.Info().Msg("database connection closed")
+	log.Info().Msg("server exited cleanly")
 }
