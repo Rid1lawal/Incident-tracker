@@ -1,0 +1,11 @@
+.git
+.gitignore
+
+.env
+
+docker/
+
+tmp/
+vendor/
+
+README.md
