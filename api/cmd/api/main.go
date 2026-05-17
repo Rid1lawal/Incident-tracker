@@ -70,11 +70,14 @@ func main() {
 	}
 
 	go func() {
+
 		log.Info().
 			Str("port", port).
 			Msg("starting API server")
 
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); err != nil &&
+			err != http.ErrServerClosed {
+
 			log.Fatal().
 				Err(err).
 				Msg("failed to start server")
