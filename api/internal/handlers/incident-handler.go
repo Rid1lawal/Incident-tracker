@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Reazy-ai/incident-tracker/internal/models"
@@ -34,7 +35,10 @@ func (h *IncidentHandler) CreateIncident(c *gin.Context) {
 
 	incident, err := h.Repo.CreateIncident(req)
 	if err != nil {
-
+		fmt.Println("DB ERROR:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		log.Error().
 			Err(err).
 			Msg("failed to create incident")
