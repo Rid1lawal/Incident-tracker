@@ -18,12 +18,12 @@ WORKDIR /app
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-COPY --from=builder /build/server /app/server
+COPY --from=builder /build/server .
 
-RUN chmod +x /app/server
+RUN chown appuser:appgroup /app/server
 
 USER appuser
 
 EXPOSE 8080
 
-CMD ["/app/server"]
+CMD ["./server"]

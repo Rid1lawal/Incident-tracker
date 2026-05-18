@@ -10,13 +10,18 @@ import (
 
 	"github.com/Reazy-ai/incident-tracker/internal/database"
 	"github.com/Reazy-ai/incident-tracker/internal/handlers"
+	"github.com/Reazy-ai/incident-tracker/internal/metrics"
+	"github.com/Reazy-ai/incident-tracker/internal/middleware"
 	"github.com/Reazy-ai/incident-tracker/internal/repositories"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog/log"
 )
 
 func main() {
+	metrics.Register()
+
 	_ = godotenv.Load()
 
 	port := os.Getenv("PORT")
@@ -36,6 +41,10 @@ func main() {
 	incidentHandler := handlers.NewIncidentHandler(incidentRepo)
 
 	router := gin.Default()
+
+	router.Use(middleware.MetricsMiddleware())
+
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	router.POST("/incidents", incidentHandler.CreateIncident)
 	router.GET("/incidents", incidentHandler.GetIncidents)
