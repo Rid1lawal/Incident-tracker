@@ -30,6 +30,10 @@ func main() {
 		port = "8080"
 	}
 
+	dbURL := os.Getenv("DB_URL")
+
+	database.RunMigrations(dbURL)
+
 	db, err := database.NewPostgresConnection()
 	if err != nil {
 		panic(err)

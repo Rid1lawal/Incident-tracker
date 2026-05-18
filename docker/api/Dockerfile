@@ -20,6 +20,8 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 COPY --from=builder /build/server .
 
+COPY --from=builder /app/migrations ./migrations
+
 RUN chown appuser:appgroup /app/server
 
 USER appuser
