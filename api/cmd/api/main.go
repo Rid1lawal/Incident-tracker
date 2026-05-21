@@ -10,6 +10,7 @@ import (
 
 	"github.com/Reazy-ai/incident-tracker/internal/database"
 	"github.com/Reazy-ai/incident-tracker/internal/handlers"
+	"github.com/Reazy-ai/incident-tracker/internal/logger"
 	"github.com/Reazy-ai/incident-tracker/internal/metrics"
 	"github.com/Reazy-ai/incident-tracker/internal/middleware"
 	"github.com/Reazy-ai/incident-tracker/internal/repositories"
@@ -21,6 +22,8 @@ import (
 
 func main() {
 	metrics.Register()
+
+	logger.ConfigureLogger()
 
 	_ = godotenv.Load()
 
@@ -36,7 +39,9 @@ func main() {
 
 	db, err := database.NewPostgresConnection()
 	if err != nil {
-		panic(err)
+		log.Fatal().
+			Err(err).
+			Msg("failed to connect to database")
 	}
 
 	defer db.Close()
@@ -44,8 +49,10 @@ func main() {
 
 	incidentHandler := handlers.NewIncidentHandler(incidentRepo)
 
-	router := gin.Default()
+	router := gin.New()
 
+	router.Use(gin.Recovery())
+	router.Use(middleware.LoggerMiddleware())
 	router.Use(middleware.MetricsMiddleware())
 
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
