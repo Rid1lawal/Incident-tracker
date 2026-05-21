@@ -5,16 +5,15 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
-func NewLogger() zerolog.Logger {
-	return zerolog.New(os.Stdout).
+func ConfigureLogger() {
+	zerolog.TimeFieldFormat = time.RFC3339
+
+	log.Logger = zerolog.New(os.Stdout).
 		With().
 		Timestamp().
 		Logger().
 		Level(zerolog.InfoLevel)
-}
-
-func ConfigureLogger() {
-	zerolog.TimeFieldFormat = time.RFC3339
 }
