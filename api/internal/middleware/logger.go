@@ -16,8 +16,10 @@ func LoggerMiddleware() gin.HandlerFunc {
 		c.Next()
 
 		duration := time.Since(start)
+		requestID, _ := c.Get(RequestIDKey)
 
 		log.Info().
+			Str("request_id", requestID.(string)).
 			Str("method", c.Request.Method).
 			Str("path", c.FullPath()).
 			Int("status", c.Writer.Status()).
