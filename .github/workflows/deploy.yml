@@ -33,9 +33,9 @@ jobs:
         run: |
           docker build \
             -f docker/api/Dockerfile \
-            -t ghcr.io/${{ github.repository_owner }}/incident-api:${{ github.sha }} \
+            -t ghcr.io/rid1lawal/incident-api:${{ github.sha }} \
             .
 
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ github.repository_owner }}/incident-api:${{ github.sha }}
+          docker push ghcr.io/rid1lawal/incident-api:${{ github.sha }}
