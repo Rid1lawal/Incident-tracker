@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: incident-api-alerts
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: incident-api
+      rules:
+        - alert: IncidentAPIDown
+          expr: up{job="incident-api"} == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: Incident API is down
+            description: Incident API has been unreachable for more than 1 minute.
